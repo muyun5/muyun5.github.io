@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/looksth.ico?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/looksth.ico?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="准备 首先网络要能连上谷歌 有谷歌云盘（最好是教育版或者有钱上商业版） 推荐为谷歌云盘开启API—&amp;gt;开启地址这一步推荐开启，否则可能会出现部分文件上传失败和挂载崩掉等问题 选择创建 OAuth 客户端 ID 应用类型选择 其他 获得的 客户端ID_跟_客户端密钥 待会会用上       安装Rclone以下以Ubuntu系统示例  下载对应架构版本—&amp;gt;进入下载    123$ wget">
+<meta name="keywords" content="rclone,googledrive">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rclone挂载谷歌云盘">
+<meta property="og:url" content="https://muyun5.github.io/googledrive/rclone/rclone&googledrive/index.html">
+<meta property="og:site_name" content="笔记">
+<meta property="og:description" content="准备 首先网络要能连上谷歌 有谷歌云盘（最好是教育版或者有钱上商业版） 推荐为谷歌云盘开启API—&amp;gt;开启地址这一步推荐开启，否则可能会出现部分文件上传失败和挂载崩掉等问题 选择创建 OAuth 客户端 ID 应用类型选择 其他 获得的 客户端ID_跟_客户端密钥 待会会用上       安装Rclone以下以Ubuntu系统示例  下载对应架构版本—&amp;gt;进入下载    123$ wget">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-07-13T08:41:59.991Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="rclone挂载谷歌云盘">
+<meta name="twitter:description" content="准备 首先网络要能连上谷歌 有谷歌云盘（最好是教育版或者有钱上商业版） 推荐为谷歌云盘开启API—&amp;gt;开启地址这一步推荐开启，否则可能会出现部分文件上传失败和挂载崩掉等问题 选择创建 OAuth 客户端 ID 应用类型选择 其他 获得的 客户端ID_跟_客户端密钥 待会会用上       安装Rclone以下以Ubuntu系统示例  下载对应架构版本—&amp;gt;进入下载    123$ wget">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://muyun5.github.io/googledrive/rclone/rclone&googledrive/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>rclone挂载谷歌云盘 | 笔记</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">笔记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-resources">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/resources" rel="section"><i class="menu-item-icon fa fa-fw fa-download"></i> <br>资源</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://muyun5.github.io/googledrive/rclone/rclone&googledrive/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Looksth">
+      <meta itemprop="description" content="蛋定点@*_*@">
+      <meta itemprop="image" content="/images/looksth.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="笔记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">rclone挂载谷歌云盘
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-12 20:14:41" itemprop="dateCreated datePublished" datetime="2019-07-12T20:14:41+08:00">2019-07-12</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-13 16:41:59" itemprop="dateModified" datetime="2019-07-13T16:41:59+08:00">2019-07-13</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/googledrive/" itemprop="url" rel="index"><span itemprop="name">googledrive</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/googledrive/rclone/" itemprop="url" rel="index"><span itemprop="name">rclone</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><ul>
+<li>首先网络要能连上谷歌</li>
+<li>有谷歌云盘（最好是教育版或者有钱上商业版）</li>
+<li>推荐为谷歌云盘开启API—&gt;<a href="https://console.developers.google.com/apis/api/drive.googleapis.com/overview" target="_blank" rel="noopener">开启地址</a><br><em>这一步推荐开启，否则可能会出现部分文件上传失败和挂载崩掉等问题</em><ul>
+<li>选择创建 OAuth 客户端 ID</li>
+<li>应用类型选择 <em>其他</em></li>
+<li>获得的 <em>客户端ID_跟_客户端密钥</em> 待会会用上   </li>
+</ul>
+</li>
+</ul>
+<h2 id="安装Rclone"><a href="#安装Rclone" class="headerlink" title="安装Rclone"></a>安装Rclone</h2><p>以下以Ubuntu系统示例</p>
+<ul>
+<li><p>下载对应架构版本—&gt;<a href="https://downloads.rclone.org/" target="_blank" rel="noopener">进入下载</a>   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ wget https://downloads.rclone.org/rclone-current-linux-amd64.zip</span><br><span class="line">$ unzip rclone-current-linux-amd64.zip</span><br><span class="line">$ cp rclone-v1.48.0-linux-amd64/rclone /usr/local/bin/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置Rclone<br><code>$ rclone config</code><br>会出现以下信息   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br></pre></td><td class="code"><pre><span class="line">n) New remote</span><br><span class="line">s) Set configuration password</span><br><span class="line">q) Quit config</span><br><span class="line">n/s/q&gt; n</span><br><span class="line">name&gt; gd  #随便填，后面要用到</span><br><span class="line">Type of storage to configure.</span><br><span class="line">Choose a number from below, or type in your own value</span><br><span class="line"> 1 / Amazon Drive</span><br><span class="line">   \ &quot;amazon cloud drive&quot;</span><br><span class="line"> 2 / Amazon S3 (also Dreamhost, Ceph, Minio)</span><br><span class="line">   \ &quot;s3&quot;</span><br><span class="line"> 3 / Backblaze B2</span><br><span class="line">   \ &quot;b2&quot;</span><br><span class="line"> 4 / Box</span><br><span class="line">   \ &quot;box&quot;</span><br><span class="line"> 5 / Cache a remote</span><br><span class="line">   \ &quot;cache&quot;</span><br><span class="line"> 6 / Dropbox</span><br><span class="line">   \ &quot;dropbox&quot;</span><br><span class="line"> 7 / Encrypt/Decrypt a remote</span><br><span class="line">   \ &quot;crypt&quot;</span><br><span class="line"> 8 / FTP Connection</span><br><span class="line">   \ &quot;ftp&quot;</span><br><span class="line"> 9 / Google Cloud Storage (this is not Google Drive)</span><br><span class="line">   \ &quot;google cloud storage&quot;</span><br><span class="line">10 / Google Drive</span><br><span class="line">   \ &quot;drive&quot;</span><br><span class="line">11 / Hubic</span><br><span class="line">   \ &quot;hubic&quot;</span><br><span class="line">12 / Local Disk</span><br><span class="line">   \ &quot;local&quot;</span><br><span class="line">13 / Microsoft Azure Blob Storage</span><br><span class="line">   \ &quot;azureblob&quot;</span><br><span class="line">14 / Microsoft OneDrive</span><br><span class="line">   \ &quot;onedrive&quot;</span><br><span class="line">15 / Openstack Swift (Rackspace Cloud Files, Memset Memstore, OVH)</span><br><span class="line">   \ &quot;swift&quot;</span><br><span class="line">16 / Pcloud</span><br><span class="line">   \ &quot;pcloud&quot;</span><br><span class="line">17 / QingCloud Object Storage</span><br><span class="line">   \ &quot;qingstor&quot;</span><br><span class="line">18 / SSH/SFTP Connection</span><br><span class="line">   \ &quot;sftp&quot;</span><br><span class="line">19 / Webdav</span><br><span class="line">   \ &quot;webdav&quot;</span><br><span class="line">20 / Yandex Disk</span><br><span class="line">   \ &quot;yandex&quot;</span><br><span class="line">21 / http Connection</span><br><span class="line">   \ &quot;http&quot;</span><br><span class="line">Storage&gt; 10  #选择10，Google Drive(下载的rclone版本不同此处序号肯能也不同)</span><br><span class="line">Google Application Client Id - leave blank normally.</span><br><span class="line">client_id&gt;  #此处填写获得的客户端ID</span><br><span class="line">Google Application Client Secret - leave blank normally.</span><br><span class="line">client_secret&gt;  #此处填写获得的客户端密钥</span><br><span class="line">Service Account Credentials JSON file path - needed only if you want use SA instead of interactive login.</span><br><span class="line">service_account_file&gt;</span><br><span class="line">Remote config</span><br><span class="line">Use auto config?</span><br><span class="line"> * Say Y if not sure</span><br><span class="line"> * Say N if you are working on a remote or headless machine or Y didn&apos;t work</span><br><span class="line">y) Yes</span><br><span class="line">n) No</span><br><span class="line">y/n&gt; n  #选择n</span><br><span class="line">If your browser doesn&apos;t open automatically go to the following link: https://accounts.google.com/o/oauth2/auth....  #复制到浏览器打开，获取验证码</span><br><span class="line">Log in and authorize rclone for access</span><br><span class="line">Enter verification code&gt;  #填入上面获取到的验证码</span><br><span class="line">Configure this as a team drive?</span><br><span class="line">y) Yes</span><br><span class="line">n) No</span><br><span class="line">y/n&gt; n  #选择n</span><br><span class="line">Fetching team drive list...</span><br><span class="line">No team drives found in your account--------------------</span><br><span class="line">[Rats]</span><br><span class="line">client_id =</span><br><span class="line">client_secret =</span><br><span class="line">service_account_file =</span><br><span class="line">token = &#123;&quot;access_token&quot;:&quot;ya29.GltFBd7UJN2qrxdG8FnG_rMuB18ogb8QlujdL7glvXtfV&quot;&#125;</span><br><span class="line">team_drive =</span><br><span class="line">y) Yes this is OK</span><br><span class="line">e) Edit this remote</span><br><span class="line">d) Delete this remote</span><br><span class="line">y/e/d&gt; y  #选择y</span><br><span class="line">Current remotes:</span><br><span class="line">Name                 Type</span><br><span class="line">Rats                 drive</span><br><span class="line">e) Edit existing remote</span><br><span class="line">n) New remote</span><br><span class="line">d) Delete remote</span><br><span class="line">r) Rename remote</span><br><span class="line">c) Copy remote</span><br><span class="line">s) Set configuration password</span><br><span class="line">q) Quit config</span><br><span class="line">e/n/d/r/c/s/q&gt; q  #选择q退出</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="挂载为本地磁盘"><a href="#挂载为本地磁盘" class="headerlink" title="挂载为本地磁盘"></a>挂载为本地磁盘</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#创建本地文件夹</span><br><span class="line">$ mkdir /home/gd</span><br><span class="line">#挂载磁盘</span><br><span class="line">$ rclone mount DriveName:Folder LocalFolder --umask 0000 --default-permissions --allow-non-empty --allow-other --transfers 4 --buffer-size 32M --low-level-retries 200 --dir-cache-time 12h --vfs-read-chunk-size 32M --vfs-read-chunk-size-limit 1G &amp;</span><br></pre></td></tr></table></figure>
+
+<p>DriveName为初始化配置填的name，Folder为Google Drive里的文件夹数，LocalFolder为VPS上的本地文件夹数。<br>因挂载命令中有<code>--allow-other</code>所以可能需要改下/etc/fuse.conf配置文件根据错误提示将user_allow_other前的#去掉<br>挂载成功后，输入<code>df -h</code>命令查看即可！</p>
+<h2 id="挂载参数说明"><a href="#挂载参数说明" class="headerlink" title="挂载参数说明"></a>挂载参数说明</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">--transfers：该参数控制最大同时传输任务数量，如果你cpu性能差，建议调低，但太低可能会影响多个文件同时传输的速度。</span><br><span class="line">--buffer-size：该参数为读取每个文件时的内存缓冲区大小，控制rclone上传和挂载的时候的内存占用，调低点可以防止内存占用过高而崩溃，但太低可能会影响部分文件的传输速度。</span><br><span class="line">--low-level-retries：该参数为传输文件没速度的时候重试次数，没速度的时候，单个会自动睡眠10ms起，然后再重试，不行，再睡眠更长一段时间，再重试，这样可以稍微加快文件上传进度。</span><br><span class="line"></span><br><span class="line">#该参数主要是上传用的</span><br><span class="line">/usr/bin/rclone mount DriveName:Folder LocalFolder \</span><br><span class="line"> --umask 0000 \</span><br><span class="line"> --default-permissions \</span><br><span class="line"> --allow-non-empty \</span><br><span class="line"> --allow-other \</span><br><span class="line"> --transfers 4 \</span><br><span class="line"> --buffer-size 32M \</span><br><span class="line"> --low-level-retries 200</span><br><span class="line"></span><br><span class="line">#如果你还涉及到读取使用，比如使用H5ai等在线播放，就还建议加3个参数，添加格式参考上面</span><br><span class="line">--dir-cache-time 12h</span><br><span class="line">--vfs-read-chunk-size 32M</span><br><span class="line">--vfs-read-chunk-size-limit 1G</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>挂载参数可以参考—&gt;<a href="https://github.com/dweidenfeld/plexdrive#usage" target="_blank" rel="noopener">此处</a>，可以根据你的需求自行调整以上参数   </p>
+<p>\/\/\/\/\/\/\/\/\/\/\/END\/\/\/\/\/\/\/\/\/\/\/\/\/</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/rclone/" rel="tag"># rclone</a>
+          
+            <a href="/tags/googledrive/" rel="tag"># googledrive</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/hexo/hexo部署到github/" rel="next" title="hexo部署到github">
+                <i class="fa fa-chevron-left"></i> hexo部署到github
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/looksth.jpg" alt="Looksth">
+            
+              <p class="site-author-name" itemprop="name">Looksth</p>
+              <div class="site-description motion-element" itemprop="description">蛋定点@*_*@</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#准备"><span class="nav-number">1.</span> <span class="nav-text">准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装Rclone"><span class="nav-number">2.</span> <span class="nav-text">安装Rclone</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#挂载为本地磁盘"><span class="nav-number">3.</span> <span class="nav-text">挂载为本地磁盘</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#挂载参数说明"><span class="nav-number">4.</span> <span class="nav-text">挂载参数说明</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Looksth</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.2.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  <script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/miku.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+</html>
